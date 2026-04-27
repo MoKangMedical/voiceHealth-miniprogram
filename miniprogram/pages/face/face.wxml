@@ -1,0 +1,143 @@
+<!--pages/face/face.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="page-header">
+    <text class="page-title">面部衰老分析</text>
+    <text class="page-subtitle">AI面部识别，评估抗衰状态</text>
+  </view>
+
+  <!-- Camera Mode -->
+  <view class="camera-section" wx:if="{{cameraMode}}">
+    <camera class="camera" device-position="front" flash="auto" binderror="onCameraError">
+      <cover-view class="camera-overlay">
+        <cover-view class="face-guide">
+          <cover-view class="guide-circle"></cover-view>
+          <cover-view class="guide-text">请将面部放入框内</cover-view>
+        </cover-view>
+      </cover-view>
+    </camera>
+    <view class="camera-actions">
+      <button class="btn btn-ghost" bindtap="choosePhoto">从相册选择</button>
+      <button class="btn btn-primary btn-capture" bindtap="takePhoto">
+        <text class="capture-icon">📷</text>
+      </button>
+      <button class="btn btn-ghost" bindtap="closeCamera">取消</button>
+    </view>
+  </view>
+
+  <!-- Photo Preview -->
+  <view class="preview-section" wx:elif="{{photoPreview}}">
+    <image class="photo-preview" src="{{photoPreview}}" mode="aspectFill" bindtap="openCamera"/>
+    <view class="preview-tips">
+      <text class="tip-icon">✓</text>
+      <text class="tip-text">照片已就绪，点击图片可重新拍摄</text>
+    </view>
+  </view>
+
+  <!-- Initial State -->
+  <view class="initial-section" wx:else>
+    <view class="initial-icon">📸</view>
+    <view class="initial-title">拍摄或上传正面照片</view>
+    <view class="initial-desc">AI将分析您的面部衰老状态</view>
+    <view class="initial-actions">
+      <button class="btn btn-primary btn-large" bindtap="openCamera">拍照分析</button>
+      <button class="btn btn-ghost btn-large" bindtap="choosePhoto">从相册选择</button>
+    </view>
+    <view class="initial-tips">
+      <view class="tip-item">
+        <text class="tip-dot">•</text>
+        <text class="tip-text">请使用正面免冠照片</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-dot">•</text>
+        <text class="tip-text">光线充足，面部清晰</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-dot">•</text>
+        <text class="tip-text">不佩戴墨镜或口罩</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Analyze Button -->
+  <view class="analyze-section" wx:if="{{canAnalyze && !analysisResult}}">
+    <button class="btn btn-primary btn-large" 
+            disabled="{{isAnalyzing}}" 
+            bindtap="startAnalysis">
+      {{isAnalyzing ? '分析中...' : '开始面部分析'}}
+    </button>
+    <view class="free-info" wx:if="{{!isVip}}">
+      <text class="text-dim">今日免费次数：{{freeCount}}/{{maxFree}}</text>
+    </view>
+  </view>
+
+  <!-- Analysis Result -->
+  <view class="result-section" wx:if="{{analysisResult}}">
+    <!-- Overall Score -->
+    <view class="score-card">
+      <view class="score-header">
+        <text class="score-title">面部衰老评估</text>
+        <view class="badge badge-{{analysisResult.level}}">{{analysisResult.levelText}}</view>
+      </view>
+      <view class="score-main">
+        <view class="score-circle" style="border-color: {{analysisResult.scoreColor}}">
+          <text class="score-value">{{analysisResult.totalScore}}</text>
+          <text class="score-label">抗衰指数</text>
+        </view>
+        <view class="score-info">
+          <view class="info-item">
+            <text class="info-label">AI预测年龄</text>
+            <text class="info-value">{{analysisResult.predictedAge}}岁</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">实际年龄差</text>
+            <text class="info-value {{analysisResult.ageDiff > 0 ? 'text-red' : 'text-green'}}">
+              {{analysisResult.ageDiff > 0 ? '+' : ''}}{{analysisResult.ageDiff}}岁
+            </text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Dimensions -->
+    <view class="section-title">详细维度</view>
+    <view class="dimensions-card">
+      <view class="dimension-item" wx:for="{{analysisResult.dimensions}}" wx:key="name">
+        <view class="dim-header">
+          <view class="dim-info">
+            <text class="dim-icon">{{item.icon}}</text>
+            <text class="dim-name">{{item.name}}</text>
+          </view>
+          <text class="dim-score">{{item.score}}分</text>
+        </view>
+        <view class="dim-bar">
+          <view class="dim-fill" style="width: {{item.score}}%; background: {{item.color}}"></view>
+        </view>
+        <text class="dim-desc">{{item.description}}</text>
+      </view>
+    </view>
+
+    <!-- Suggestions -->
+    <view class="section-title">抗衰建议</view>
+    <view class="suggestions-card">
+      <view class="suggestion-item" wx:for="{{analysisResult.suggestions}}" wx:key="title">
+        <view class="suggestion-header">
+          <text class="suggestion-icon">{{item.icon}}</text>
+          <text class="suggestion-title">{{item.title}}</text>
+        </view>
+        <text class="suggestion-content">{{item.content}}</text>
+      </view>
+    </view>
+
+    <!-- Actions -->
+    <view class="actions">
+      <button class="btn btn-ghost" bindtap="retake">重新分析</button>
+      <button class="btn btn-primary" bindtap="goToCombined">生成综合报告</button>
+    </view>
+  </view>
+
+  <!-- Disclaimer -->
+  <view class="disclaimer">
+    * 本分析仅供参考，不构成医疗建议。面部衰老受多种因素影响，请理性看待结果。
+  </view>
+</view>

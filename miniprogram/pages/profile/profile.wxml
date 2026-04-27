@@ -1,0 +1,79 @@
+<!--pages/profile/profile.wxml-->
+<view class="container">
+  <!-- User Info -->
+  <view class="user-section">
+    <view class="user-card" wx:if="{{userInfo}}">
+      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"/>
+      <view class="user-info">
+        <text class="user-name">{{userInfo.nickName}}</text>
+        <view class="user-badge">
+          <view class="badge badge-green" wx:if="{{isVip}}">会员</view>
+          <view class="badge badge-yellow" wx:else>免费用户</view>
+        </view>
+      </view>
+    </view>
+    <view class="login-card" wx:else bindtap="getUserProfile">
+      <view class="login-avatar">
+        <text class="login-icon">👤</text>
+      </view>
+      <view class="login-info">
+        <text class="login-text">点击登录</text>
+        <text class="login-hint">登录后查看检测记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Stats -->
+  <view class="stats-section" wx:if="{{userInfo}}">
+    <view class="stat-item">
+      <text class="stat-value">{{totalRecords}}</text>
+      <text class="stat-label">检测次数</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{freeCount}}/{{maxFree}}</text>
+      <text class="stat-label">今日免费</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{isVip ? '∞' : '0'}}</text>
+      <text class="stat-label">会员状态</text>
+    </view>
+  </view>
+
+  <!-- VIP Card -->
+  <view class="vip-card" wx:if="{{userInfo && !isVip}}" bindtap="showVipModal">
+    <view class="vip-content">
+      <text class="vip-icon">👑</text>
+      <view class="vip-info">
+        <text class="vip-title">开通会员</text>
+        <text class="vip-desc">无限次使用 + 详细报告</text>
+      </view>
+      <text class="vip-price">29.9元/月</text>
+    </view>
+  </view>
+
+  <!-- Menu -->
+  <view class="menu-section">
+    <view class="menu-item" 
+          wx:for="{{menuItems}}" 
+          wx:key="id"
+          bindtap="onMenuTap"
+          data-id="{{item.id}}">
+      <view class="menu-left">
+        <text class="menu-icon">{{item.icon}}</text>
+        <view class="menu-info">
+          <text class="menu-name">{{item.name}}</text>
+          <text class="menu-desc">{{item.desc}}</text>
+        </view>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- Footer -->
+  <view class="footer">
+    <text class="footer-text">VoiceHealth v1.0.0</text>
+    <text class="footer-text">AI声纹健康参考</text>
+  </view>
+</view>

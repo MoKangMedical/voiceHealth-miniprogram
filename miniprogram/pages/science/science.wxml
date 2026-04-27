@@ -1,0 +1,170 @@
+<!--pages/science/science.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="page-header">
+    <text class="page-title">科学依据</text>
+    <text class="page-subtitle">声纹健康的理论基础与研究支持</text>
+  </view>
+
+  <!-- Tabs -->
+  <view class="tabs">
+    <view class="tab-item {{activeTab === index ? 'active' : ''}}" 
+          wx:for="{{tabs}}" 
+          wx:key="index"
+          bindtap="switchTab"
+          data-index="{{index}}">
+      {{item}}
+    </view>
+  </view>
+
+  <!-- Tab Content -->
+  <view class="tab-content">
+    <!-- 理论基础 -->
+    <view class="theory-section" wx:if="{{activeTab === 0}}">
+      <view class="theory-card" wx:for="{{theories}}" wx:key="title">
+        <view class="theory-header">
+          <text class="theory-icon">{{item.icon}}</text>
+          <text class="theory-title">{{item.title}}</text>
+        </view>
+        <view class="theory-content">{{item.content}}</view>
+        <view class="theory-points">
+          <view class="point-item" wx:for="{{item.points}}" wx:for-item="point" wx:key="*this">
+            <text class="point-dot">•</text>
+            <text class="point-text">{{point}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 学术文献 -->
+    <view class="papers-section" wx:if="{{activeTab === 1}}">
+      <view class="paper-card" wx:for="{{papers}}" wx:key="title" bindtap="viewPaper" data-index="{{index}}">
+        <view class="paper-header">
+          <text class="paper-title">{{item.title}}</text>
+          <view class="paper-meta">
+            <text class="paper-journal">{{item.journal}}</text>
+            <text class="paper-year">{{item.year}}</text>
+          </view>
+        </view>
+        <view class="paper-authors">{{item.authors}}</view>
+        <view class="paper-summary">{{item.summary}}</view>
+        <view class="paper-findings">
+          <view class="finding-item" wx:for="{{item.keyFindings}}" wx:for-item="finding" wx:key="*this">
+            <text class="finding-icon">✓</text>
+            <text class="finding-text">{{finding}}</text>
+          </view>
+        </view>
+        <view class="paper-footer">
+          <text class="paper-doi" catchtap="copyDoi" data-doi="{{item.doi}}">DOI: {{item.doi}}</text>
+          <text class="paper-link">查看详情 →</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 技术原理 -->
+    <view class="tech-section" wx:if="{{activeTab === 2}}">
+      <view class="tech-flow">
+        <view class="tech-step" wx:for="{{techPrinciples}}" wx:key="step">
+          <view class="step-number">{{item.step}}</view>
+          <view class="step-content">
+            <view class="step-header">
+              <text class="step-icon">{{item.icon}}</text>
+              <text class="step-title">{{item.title}}</text>
+            </view>
+            <text class="step-desc">{{item.description}}</text>
+          </view>
+          <view class="step-arrow" wx:if="{{index < techPrinciples.length - 1}}">↓</view>
+        </view>
+      </view>
+
+      <view class="tech-detail">
+        <view class="detail-title">59维声学特征详解</view>
+        <view class="detail-grid">
+          <view class="detail-item">
+            <text class="detail-name">基频特征</text>
+            <text class="detail-value">F0, Jitter, Shimmer</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-name">能量特征</text>
+            <text class="detail-value">RMS, ZCR, Energy</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-name">频谱特征</text>
+            <text class="detail-value">Spectral Centroid, Rolloff</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-name">MFCC特征</text>
+            <text class="detail-value">13维倒谱系数</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-name">时域特征</text>
+            <text class="detail-value">Duration, Pause Ratio</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-name">非线性特征</text>
+            <text class="detail_value">DFA, Entropy, Lyapunov</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 临床验证 -->
+    <view class="validation-section" wx:if="{{activeTab === 3}}">
+      <view class="validation-card">
+        <view class="validation-title">核心指标</view>
+        <view class="validation-grid">
+          <view class="validation-item" wx:for="{{validations}}" wx:key="metric">
+            <text class="validation-icon">{{item.icon}}</text>
+            <text class="validation-value">{{item.value}}</text>
+            <text class="validation-metric">{{item.metric}}</text>
+            <text class="validation-desc">{{item.description}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="partners-card">
+        <view class="partners-title">合作机构</view>
+        <view class="partners-list">
+          <view class="partner-item" wx:for="{{partners}}" wx:key="name">
+            <view class="partner-info">
+              <text class="partner-name">{{item.name}}</text>
+              <text class="partner-type">{{item.type}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="cert-card">
+        <view class="cert-title">资质认证</view>
+        <view class="cert-list">
+          <view class="cert-item">
+            <text class="cert-icon">📜</text>
+            <view class="cert-info">
+              <text class="cert-name">医疗器械软件注册</text>
+              <text class="cert-desc">II类医疗器械软件认证</text>
+            </view>
+          </view>
+          <view class="cert-item">
+            <text class="cert-icon">🔒</text>
+            <view class="cert-info">
+              <text class="cert-name">ISO 27001</text>
+              <text class="cert-desc">信息安全管理体系认证</text>
+            </view>
+          </view>
+          <view class="cert-item">
+            <text class="cert-icon">🏥</text>
+            <view class="cert-info">
+              <text class="cert-name">HIPAA合规</text>
+              <text class="cert-desc">医疗信息隐私保护</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Disclaimer -->
+  <view class="disclaimer">
+    * 本服务基于科学研究开发，但生成的报告仅供参考，不构成医疗建议。如有健康问题，请咨询专业医生。
+  </view>
+</view>

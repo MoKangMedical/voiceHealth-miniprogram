@@ -1,0 +1,461 @@
+/* pages/science/science.wxss */
+.container {
+  padding: 0 32rpx 40rpx;
+  min-height: 100vh;
+}
+
+.page-header {
+  padding: 48rpx 0 32rpx;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.45);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 32rpx;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-item {
+  padding: 16rpx 28rpx;
+  border-radius: 40rpx;
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.65);
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+/* Theory Section */
+.theory-card {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.theory-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.theory-icon {
+  font-size: 40rpx;
+}
+
+.theory-title {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.theory-content {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.8;
+  margin-bottom: 24rpx;
+}
+
+.theory-points {
+  background: rgba(59,130,246,0.08);
+  border-radius: 20rpx;
+  padding: 24rpx;
+}
+
+.point-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.point-item:last-child {
+  margin-bottom: 0;
+}
+
+.point-dot {
+  color: #3b82f6;
+  font-size: 28rpx;
+}
+
+.point-text {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+}
+
+/* Papers Section */
+.paper-card {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.paper-header {
+  margin-bottom: 16rpx;
+}
+
+.paper-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 12rpx;
+  line-height: 1.4;
+}
+
+.paper-meta {
+  display: flex;
+  gap: 16rpx;
+}
+
+.paper-journal {
+  font-size: 24rpx;
+  color: #3b82f6;
+}
+
+.paper-year {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.45);
+}
+
+.paper-authors {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 16rpx;
+}
+
+.paper-summary {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.7;
+  margin-bottom: 20rpx;
+}
+
+.paper-findings {
+  background: rgba(34,197,94,0.08);
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.finding-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.finding-item:last-child {
+  margin-bottom: 0;
+}
+
+.finding-icon {
+  color: #22c55e;
+  font-size: 24rpx;
+}
+
+.finding-text {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.5;
+}
+
+.paper-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paper-doi {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.35);
+}
+
+.paper-link {
+  font-size: 24rpx;
+  color: #3b82f6;
+}
+
+/* Tech Section */
+.tech-flow {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.tech-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+  position: relative;
+}
+
+.tech-step:last-child {
+  margin-bottom: 0;
+}
+
+.step-number {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.step-icon {
+  font-size: 32rpx;
+}
+
+.step-title {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.step-desc {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.6;
+}
+
+.step-arrow {
+  position: absolute;
+  left: 28rpx;
+  bottom: -20rpx;
+  color: rgba(255,255,255,0.2);
+  font-size: 24rpx;
+}
+
+.tech-detail {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  border-radius: 28rpx;
+  padding: 32rpx;
+}
+
+.detail-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.detail-item {
+  background: rgba(59,130,246,0.08);
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.detail-name {
+  font-size: 24rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+  color: #3b82f6;
+}
+
+.detail-value {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.65);
+}
+
+/* Validation Section */
+.validation-card {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.validation-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+}
+
+.validation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+
+.validation-item {
+  background: rgba(34,197,94,0.08);
+  border-radius: 20rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.validation-icon {
+  font-size: 40rpx;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.validation-value {
+  font-size: 40rpx;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8rpx;
+  color: #22c55e;
+}
+
+.validation-metric {
+  font-size: 26rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.validation-desc {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.45);
+}
+
+.partners-card {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.partners-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+}
+
+.partners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.partner-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  background: rgba(59,130,246,0.08);
+  border-radius: 16rpx;
+}
+
+.partner-name {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.partner-type {
+  font-size: 22rpx;
+  color: #3b82f6;
+}
+
+.cert-card {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.06);
+  border-radius: 28rpx;
+  padding: 32rpx;
+}
+
+.cert-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+}
+
+.cert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.cert-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx;
+  background: rgba(234,179,8,0.08);
+  border-radius: 16rpx;
+}
+
+.cert-icon {
+  font-size: 40rpx;
+}
+
+.cert-info {
+  flex: 1;
+}
+
+.cert-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.cert-desc {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.45);
+}
+
+/* Disclaimer */
+.disclaimer {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+  padding: 40rpx 20rpx;
+  line-height: 1.6;
+}

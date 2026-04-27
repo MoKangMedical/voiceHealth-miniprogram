@@ -1,0 +1,131 @@
+<!--pages/combined/combined.wxml-->
+<view class="container">
+  <!-- Loading -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">生成综合报告...</text>
+  </view>
+
+  <!-- Report Content -->
+  <view class="report-content" wx:else>
+    <!-- Header -->
+    <view class="page-header">
+      <text class="page-title">综合健康评估</text>
+      <text class="page-subtitle">声纹 + 面部 双维度分析</text>
+    </view>
+
+    <!-- Overall Score -->
+    <view class="score-card">
+      <view class="score-header">
+        <view class="score-badge">
+          <view class="badge badge-{{combinedResult.level}}">{{combinedResult.levelText}}</view>
+        </view>
+        <view class="data-sources">
+          <text class="source-item" wx:for="{{combinedResult.dataSources}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+      <view class="score-main">
+        <view class="score-circle" style="border-color: {{combinedResult.scoreColor}}">
+          <text class="score-value">{{combinedResult.totalScore}}</text>
+          <text class="score-label">综合评分</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Age Assessment -->
+    <view class="section-title">年龄评估</view>
+    <view class="age-card">
+      <view class="age-main">
+        <view class="age-predicted">
+          <text class="age-value">{{combinedResult.ageAssessment.predictedAge}}</text>
+          <text class="age-unit">岁</text>
+        </view>
+        <view class="age-diff {{combinedResult.ageAssessment.ageDiff > 0 ? 'older' : 'younger'}}">
+          {{combinedResult.ageAssessment.diffText}}
+        </view>
+      </view>
+      <view class="age-details">
+        <view class="age-item" wx:if="{{combinedResult.ageAssessment.voiceAge}}">
+          <text class="age-icon">🎤</text>
+          <text class="age-label">声纹年龄</text>
+          <text class="age-val">{{combinedResult.ageAssessment.voiceAge}}岁</text>
+        </view>
+        <view class="age-item" wx:if="{{combinedResult.ageAssessment.faceAge}}">
+          <text class="age-icon">📸</text>
+          <text class="age-label">面部年龄</text>
+          <text class="age-val">{{combinedResult.ageAssessment.faceAge}}岁</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Dimensions -->
+    <view class="section-title">维度评分</view>
+    <view class="dimensions-card">
+      <view class="dimension-item" wx:for="{{combinedResult.dimensions}}" wx:key="name">
+        <view class="dim-header">
+          <view class="dim-info">
+            <text class="dim-icon">{{item.icon}}</text>
+            <text class="dim-name">{{item.name}}</text>
+          </view>
+          <text class="dim-score" style="color: {{item.color}}">{{item.score}}</text>
+        </view>
+        <view class="dim-bar">
+          <view class="dim-fill" style="width: {{item.score}}%; background: {{item.color}}"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Voice Details -->
+    <view class="section-title" wx:if="{{voiceResult}}">声纹分析详情</view>
+    <view class="detail-card" wx:if="{{voiceResult}}">
+      <view class="detail-summary">{{voiceResult.summary}}</view>
+      <view class="detail-features">
+        <view class="feature-item" wx:for="{{voiceResult.features}}" wx:key="name">
+          <text class="feature-name">{{item.name}}</text>
+          <view class="feature-bar">
+            <view class="feature-fill" style="width: {{item.percent}}%; background: {{item.color}}"></view>
+          </view>
+          <text class="feature-value">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Face Details -->
+    <view class="section-title" wx:if="{{faceResult}}">面部分析详情</view>
+    <view class="detail-card" wx:if="{{faceResult}}">
+      <view class="face-dimensions">
+        <view class="face-dim-item" wx:for="{{faceResult.dimensions}}" wx:key="name">
+          <view class="face-dim-header">
+            <text class="face-dim-icon">{{item.icon}}</text>
+            <text class="face-dim-name">{{item.name}}</text>
+            <text class="face-dim-score">{{item.score}}分</text>
+          </view>
+          <text class="face-dim-desc">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Suggestions -->
+    <view class="section-title">综合建议</view>
+    <view class="suggestions-card">
+      <view class="suggestion-item" wx:for="{{combinedResult.suggestions}}" wx:key="title">
+        <view class="suggestion-header">
+          <text class="suggestion-icon">{{item.icon}}</text>
+          <text class="suggestion-title">{{item.title}}</text>
+        </view>
+        <text class="suggestion-content">{{item.content}}</text>
+      </view>
+    </view>
+
+    <!-- Disclaimer -->
+    <view class="disclaimer">
+      * 本报告由AI生成，综合声纹和面部分析结果仅供参考，不构成医疗建议。如有健康问题，请咨询专业医生。
+    </view>
+
+    <!-- Actions -->
+    <view class="actions">
+      <button class="btn btn-ghost" bindtap="saveReport">保存报告</button>
+      <button class="btn btn-primary" bindtap="goHome">返回首页</button>
+    </view>
+  </view>
+</view>

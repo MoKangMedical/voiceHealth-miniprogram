@@ -1,0 +1,68 @@
+<!--pages/history/history.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="page-header">
+    <text class="page-title">检测记录</text>
+    <text class="page-subtitle">查看历史健康参考报告</text>
+  </view>
+
+  <!-- Not Logged In -->
+  <view class="empty-state" wx:if="{{!userInfo}}">
+    <text class="empty-icon">👤</text>
+    <text class="empty-text">登录后查看检测记录</text>
+    <button class="btn btn-primary" bindtap="getUserProfile">立即登录</button>
+  </view>
+
+  <!-- Loading -->
+  <view class="loading-state" wx:elif="{{loading && records.length === 0}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- Empty -->
+  <view class="empty-state" wx:elif="{{records.length === 0}}">
+    <text class="empty-icon">📊</text>
+    <text class="empty-text">暂无检测记录</text>
+    <button class="btn btn-primary" bindtap="goHome">去检测</button>
+  </view>
+
+  <!-- Records List -->
+  <view class="records-list" wx:else>
+    <view class="record-item" 
+          wx:for="{{records}}" 
+          wx:key="id"
+          bindtap="viewReport"
+          data-id="{{item.id}}">
+      <view class="record-header">
+        <view class="record-score" style="color: {{item.scoreColor}}">
+          <text class="score-num">{{item.score}}</text>
+          <text class="score-unit">分</text>
+        </view>
+        <view class="record-info">
+          <text class="record-time">{{item.createTime}}</text>
+          <view class="badge badge-{{item.level}}">{{item.levelText}}</view>
+        </view>
+      </view>
+      <view class="record-summary">{{item.summary}}</view>
+      <view class="record-footer">
+        <text class="record-duration">录制时长：{{item.duration}}秒</text>
+        <view class="record-actions">
+          <button class="action-btn" catchtap="deleteRecord" data-id="{{item.id}}">
+            <text class="action-icon">🗑️</text>
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <!-- Load More -->
+    <view class="load-more" wx:if="{{hasMore}}" bindtap="loadMore">
+      <text wx:if="{{loading}}">加载中...</text>
+      <text wx:else>加载更多</text>
+    </view>
+
+    <!-- No More -->
+    <view class="no-more" wx:else>
+      <text>没有更多记录了</text>
+    </view>
+  </view>
+</view>
