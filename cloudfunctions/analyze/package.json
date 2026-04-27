@@ -1,9 +1,10 @@
 {
   "name": "analyze",
   "version": "1.0.0",
-  "description": "VoiceHealth 音频分析云函数",
+  "description": "VoiceHealth语音分析云函数",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "~2.6.3"
+    "wx-server-sdk": "~2.6.3",
+    "axios": "^1.6.0"
   }
 }

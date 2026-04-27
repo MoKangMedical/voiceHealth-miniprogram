@@ -1,74 +1,65 @@
 // cloudfunctions/payment-callback/index.js
+// VoiceHealth 支付回调云函数 - 处理微信支付结果
+
 const cloud = require('wx-server-sdk')
+
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const db = cloud.database()
 const _ = db.command
 
 exports.main = async (event, context) => {
-  const { outTradeNo, resultCode, totalFee } = event
-
-  if (resultCode !== 'SUCCESS') {
-    return { errcode: 0, errmsg: 'OK' }
-  }
+  const { orderId, status, transactionId } = event
 
   try {
-    // 更新订单状态
-    await db.collection('orders')
-      .where({ tradeNo: outTradeNo })
-      .update({
-        data: {
-          status: 'paid',
-          payTime: db.serverDate()
-        }
-      })
-
-    // 获取订单信息
-    const order = await db.collection('orders')
-      .where({ tradeNo: outTradeNo })
+    // 1. 获取订单信息
+    const orderResult = await db.collection('orders')
+      .where({ orderId })
       .get()
 
-    if (order.data.length > 0) {
-      const { userId, type } = order.data[0]
-
-      // 如果是会员订单，更新用户会员状态
-      if (type === 'vip') {
-        // 计算会员到期时间（30天后）
-        const expireTime = new Date()
-        expireTime.setDate(expireTime.getDate() + 30)
-
-        // 更新或创建用户会员记录
-        const userVip = await db.collection('user_vip')
-          .where({ userId })
-          .get()
-
-        if (userVip.data.length > 0) {
-          await db.collection('user_vip')
-            .where({ userId })
-            .update({
-              data: {
-                isVip: true,
-                expireTime: expireTime,
-                updateTime: db.serverDate()
-              }
-            })
-        } else {
-          await db.collection('user_vip').add({
-            data: {
-              userId: userId,
-              isVip: true,
-              expireTime: expireTime,
-              createTime: db.serverDate(),
-              updateTime: db.serverDate()
-            }
-          })
-        }
-      }
+    if (orderResult.data.length === 0) {
+      return { success: false, message: '订单不存在' }
     }
 
-    return { errcode: 0, errmsg: 'OK' }
+    const order = orderResult.data[0]
+
+    // 2. 更新订单状态
+    await db.collection('orders').where({ orderId }).update({
+      data: {
+        status: status, // 'success' 或 'failed'
+        transactionId: transactionId,
+        updateTime: db.serverDate()
+      }
+    })
+
+    // 3. 如果支付成功，更新用户VIP状态
+    if (status === 'success') {
+      if (order.type === 'vip') {
+        // 开通VIP会员
+        await db.collection('user_vip').add({
+          data: {
+            userId: order.userId,
+            type: 'monthly',
+            startTime: db.serverDate(),
+            endTime: _.serverDate(30 * 24 * 60 * 60 * 1000), // 30天后
+            orderId: orderId,
+            createTime: db.serverDate()
+          }
+        })
+      }
+      // 单次购买不需要额外处理，前端会根据支付状态允许使用
+    }
+
+    return {
+      success: true,
+      orderId: orderId,
+      status: status
+    }
   } catch (err) {
-    console.error('支付回调处理失败:', err)
-    return { errcode: 0, errmsg: 'OK' }
+    console.error('处理支付回调失败:', err)
+    return {
+      success: false,
+      message: '处理失败'
+    }
   }
 }

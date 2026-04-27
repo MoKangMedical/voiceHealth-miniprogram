@@ -17,6 +17,9 @@ App({
     this.globalData.userInfo = wx.getStorageSync('userInfo') || null
     this.globalData.freeCount = wx.getStorageSync('freeCount') || 0
     this.globalData.isVip = wx.getStorageSync('isVip') || false
+    
+    // 检查VIP是否过期
+    this.checkVipStatus()
   },
 
   globalData: {
@@ -25,6 +28,17 @@ App({
     isVip: false,       // 是否会员
     maxFreePerDay: config.payment.freePerDay,
     pricePerReport: config.payment.singlePrice / 100 // 转换为元
+  },
+
+  // 检查VIP状态
+  checkVipStatus: function () {
+    const vipExpire = wx.getStorageSync('vipExpire')
+    if (vipExpire && new Date(vipExpire) > new Date()) {
+      this.globalData.isVip = true
+    } else {
+      this.globalData.isVip = false
+      wx.setStorageSync('isVip', false)
+    }
   },
 
   // 检查是否可以免费使用
@@ -44,5 +58,39 @@ App({
     this.globalData.freeCount++
     wx.setStorageSync('freeCount', this.globalData.freeCount)
     wx.setStorageSync('lastFreeDate', new Date().toDateString())
+  },
+
+  // 获取API基础URL
+  getApiBaseUrl: function () {
+    return config.api.useDev ? config.api.devBaseUrl : config.api.baseUrl
+  },
+
+  // 通用API请求方法
+  request: function (options) {
+    const that = this
+    const baseUrl = that.getApiBaseUrl()
+    
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: `${baseUrl}${options.url}`,
+        method: options.method || 'GET',
+        data: options.data || {},
+        header: {
+          'Content-Type': 'application/json',
+          'X-User-Id': that.globalData.userInfo?.nickName || 'anonymous',
+          ...options.header
+        },
+        success: (res) => {
+          if (res.statusCode === 200) {
+            resolve(res.data)
+          } else {
+            reject(new Error(res.data?.message || '请求失败'))
+          }
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+    })
   }
 })

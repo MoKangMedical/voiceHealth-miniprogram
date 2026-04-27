@@ -5,6 +5,16 @@ module.exports = {
   // 云环境ID（需要替换）
   cloudEnv: 'voicehealth-xxxxx',
   
+  // 后端API配置
+  api: {
+    // 生产环境API地址
+    baseUrl: 'https://voicehealth-api.example.com',
+    // 开发环境API地址（本地开发时使用）
+    devBaseUrl: 'http://localhost:8100',
+    // 是否使用开发环境
+    useDev: false
+  },
+  
   // 支付配置
   payment: {
     // 单次分析价格（单位：分）
@@ -42,5 +52,11 @@ module.exports = {
   contact: {
     email: 'support@voicehealth.ai',
     wechat: 'VoiceHealth_AI'
+  },
+  
+  // 版本信息
+  version: {
+    current: '1.0.0',
+    build: '20260427'
   }
 }

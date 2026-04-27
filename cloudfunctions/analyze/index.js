@@ -1,9 +1,17 @@
 // cloudfunctions/analyze/index.js
+// VoiceHealth 语音分析云函数 - 对接真实后端API
+
 const cloud = require('wx-server-sdk')
+const axios = require('axios')
+
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const db = cloud.database()
 const _ = db.command
+
+// 后端API配置
+const API_BASE = 'https://voicehealth-api.example.com' // 替换为你的实际API地址
+// 本地开发时可使用: http://localhost:8100
 
 exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
@@ -23,30 +31,44 @@ exports.main = async (event, context) => {
   }
 }
 
-// 分析音频
+// 分析音频 - 对接真实API
 async function analyzeAudio(userId, audioPath) {
   try {
-    // 上传音频到云存储
+    // 1. 上传音频到云存储
     const audioResult = await cloud.uploadFile({
       fileContent: Buffer.from(audioPath, 'base64'),
       cloudPath: `audio/${userId}/${Date.now()}.wav`
     })
 
-    // 调用分析服务（这里需要对接你的后端API）
-    // 暂时返回模拟数据
-    const mockReport = generateMockReport()
+    // 2. 调用后端API进行分析
+    const response = await axios.post(`${API_BASE}/api/v1/analyze`, {
+      audio_url: audioResult.fileID,
+      user_id: userId
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Id': userId
+      },
+      timeout: 30000 // 30秒超时
+    })
 
-    // 保存报告到数据库
+    const apiResult = response.data
+
+    if (!apiResult.ok) {
+      throw new Error(apiResult.message || '分析失败')
+    }
+
+    // 3. 保存报告到数据库
     const reportData = {
       userId: userId,
       audioFileId: audioResult.fileID,
-      score: mockReport.overallScore,
-      summary: mockReport.summary,
-      features: mockReport.features,
-      risks: mockReport.risks,
-      insight: mockReport.insight,
+      score: apiResult.report.overall_score,
+      summary: apiResult.report.summary,
+      features: apiResult.features,
+      risks: apiResult.report.risks,
+      insight: apiResult.ai_insight,
       createTime: db.serverDate(),
-      duration: 30
+      duration: apiResult.report.duration || 30
     }
 
     const result = await db.collection('reports').add({ data: reportData })
@@ -54,13 +76,21 @@ async function analyzeAudio(userId, audioPath) {
     return {
       success: true,
       reportId: result._id,
-      report: mockReport
+      report: apiResult.report,
+      features: apiResult.features,
+      ai_insight: apiResult.ai_insight
     }
   } catch (err) {
     console.error('分析失败:', err)
+    
+    // 如果API调用失败，返回模拟数据（开发阶段）
+    if (process.env.NODE_ENV === 'development') {
+      return generateMockResponse(userId)
+    }
+    
     return {
       success: false,
-      message: '分析失败，请重试'
+      message: err.message || '分析失败，请重试'
     }
   }
 }
@@ -138,8 +168,8 @@ async function deleteReport(userId, reportId) {
   }
 }
 
-// 生成模拟报告（实际应对接你的后端）
-function generateMockReport() {
+// 生成模拟响应（开发阶段使用）
+function generateMockResponse(userId) {
   const scores = [75, 80, 85, 70, 65, 88, 92, 60]
   const score = scores[Math.floor(Math.random() * scores.length)]
   
@@ -183,10 +213,15 @@ function generateMockReport() {
   ]
 
   return {
-    overallScore: score,
-    summary: summaries[Math.floor(Math.random() * summaries.length)],
+    success: true,
+    reportId: `mock_${Date.now()}`,
+    report: {
+      overall_score: score,
+      summary: summaries[Math.floor(Math.random() * summaries.length)],
+      risks: risks,
+      duration: 30
+    },
     features: features,
-    risks: risks,
-    insight: '基于您的声纹特征分析，AI建议您保持良好的作息习惯，定期进行健康检查。本报告仅供参考，如有健康疑虑请咨询专业医生。'
+    ai_insight: '基于您的声纹特征分析，AI建议您保持良好的作息习惯，定期进行健康检查。本报告仅供参考，如有健康疑虑请咨询专业医生。'
   }
 }

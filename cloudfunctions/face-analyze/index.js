@@ -1,128 +1,151 @@
 // cloudfunctions/face-analyze/index.js
+// VoiceHealth 面部分析云函数 - 对接真实后端API
+
 const cloud = require('wx-server-sdk')
+const axios = require('axios')
+
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 const db = cloud.database()
 
+// 后端API配置
+const API_BASE = 'https://voicehealth-api.example.com' // 替换为你的实际API地址
+
 exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
-  const { fileId } = event
+  const { action, imageUrl, reportId } = event
 
+  switch (action) {
+    case 'getReport':
+      return await getFaceReport(reportId)
+    case 'getHistory':
+      return await getFaceHistory(OPENID)
+    default:
+      return await analyzeFace(OPENID, imageUrl)
+  }
+}
+
+// 分析面部 - 对接真实API
+async function analyzeFace(userId, imageUrl) {
   try {
-    // 获取文件临时链接
-    const fileRes = await cloud.getTempFileURL({
-      fileList: [fileId]
+    // 1. 调用后端API进行面部分析
+    const response = await axios.post(`${API_BASE}/api/v1/face/analyze`, {
+      image_url: imageUrl,
+      user_id: userId
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Id': userId
+      },
+      timeout: 30000
     })
-    
-    const imageUrl = fileRes.fileList[0].tempFileURL
-    
-    // 调用面部分析API（这里用模拟数据，实际可对接百度AI、腾讯云等）
-    const analysis = await analyzeFace(imageUrl)
-    
-    // 保存分析记录
-    await db.collection('face_reports').add({
-      data: {
-        userId: OPENID,
-        fileId: fileId,
-        analysis: analysis,
-        createTime: db.serverDate()
-      }
-    })
-    
+
+    const apiResult = response.data
+
+    if (!apiResult.ok) {
+      throw new Error(apiResult.message || '分析失败')
+    }
+
+    // 2. 保存报告到数据库
+    const reportData = {
+      userId: userId,
+      imageUrl: imageUrl,
+      score: apiResult.report.overall_score,
+      predictedAge: apiResult.report.predicted_age,
+      dimensions: apiResult.report.dimensions,
+      summary: apiResult.report.summary,
+      createTime: db.serverDate()
+    }
+
+    const result = await db.collection('face_reports').add({ data: reportData })
+
     return {
       success: true,
-      analysis: analysis
+      reportId: result._id,
+      report: apiResult.report
     }
   } catch (err) {
     console.error('面部分析失败:', err)
+    
+    // 开发阶段返回模拟数据
+    if (process.env.NODE_ENV === 'development') {
+      return generateMockFaceResponse(userId)
+    }
+    
     return {
       success: false,
-      message: '分析失败，请重试'
+      message: err.message || '分析失败，请重试'
     }
   }
 }
 
-// 面部分析（模拟数据，实际应对接真实API）
-async function analyzeFace(imageUrl) {
-  // 模拟分析延迟
-  await new Promise(resolve => setTimeout(resolve, 2000))
+// 获取面部报告
+async function getFaceReport(reportId) {
+  try {
+    const result = await db.collection('face_reports').doc(reportId).get()
+    return {
+      success: true,
+      report: result.data
+    }
+  } catch (err) {
+    return {
+      success: false,
+      message: '报告不存在'
+    }
+  }
+}
+
+// 获取面部分析历史
+async function getFaceHistory(userId) {
+  try {
+    const result = await db.collection('face_reports')
+      .where({ userId })
+      .orderBy('createTime', 'desc')
+      .limit(20)
+      .get()
+
+    return {
+      success: true,
+      records: result.data
+    }
+  } catch (err) {
+    return {
+      success: false,
+      records: []
+    }
+  }
+}
+
+// 生成模拟面部响应（开发阶段）
+function generateMockFaceResponse(userId) {
+  const baseAge = 30
+  const variance = Math.floor(Math.random() * 10) - 5
+  const predictedAge = baseAge + variance
   
-  // 生成模拟数据
-  const totalScore = 65 + Math.floor(Math.random() * 25)
-  const predictedAge = 25 + Math.floor(Math.random() * 15)
-  const actualAge = 30 // 假设实际年龄
-  const ageDiff = predictedAge - actualAge
-  
+  const dimensions = [
+    { name: '皱纹', score: 70 + Math.floor(Math.random() * 20), level: '良好' },
+    { name: '色斑', score: 65 + Math.floor(Math.random() * 25), level: '一般' },
+    { name: '紧致度', score: 75 + Math.floor(Math.random() * 15), level: '良好' },
+    { name: '眼部', score: 60 + Math.floor(Math.random() * 30), level: '一般' },
+    { name: '法令纹', score: 70 + Math.floor(Math.random() * 20), level: '良好' },
+    { name: '肤色', score: 80 + Math.floor(Math.random() * 15), level: '优秀' }
+  ]
+
+  const overallScore = Math.floor(dimensions.reduce((sum, d) => sum + d.score, 0) / dimensions.length)
+
   return {
-    totalScore,
-    scoreColor: totalScore >= 80 ? '#22c55e' : totalScore >= 60 ? '#3b82f6' : '#ef4444',
-    level: totalScore >= 80 ? 'good' : totalScore >= 60 ? 'normal' : 'warning',
-    levelText: totalScore >= 80 ? '状态良好' : totalScore >= 60 ? '状态正常' : '需要关注',
-    
-    predictedAge,
-    actualAge,
-    ageDiff,
-    
-    dimensions: [
-      {
-        name: '皮肤年龄',
-        icon: '👤',
-        score: 70 + Math.floor(Math.random() * 20),
-        description: '基于面部纹理和弹性评估'
-      },
-      {
-        name: '皱纹程度',
-        icon: '〰️',
-        score: 65 + Math.floor(Math.random() * 25),
-        description: '额头、眼角、嘴角皱纹分析'
-      },
-      {
-        name: '色斑状况',
-        icon: '🔴',
-        score: 70 + Math.floor(Math.random() * 20),
-        description: '色素沉着和斑点评估'
-      },
-      {
-        name: '紧致度',
-        icon: '💪',
-        score: 60 + Math.floor(Math.random() * 30),
-        description: '面部轮廓和皮肤弹性'
-      },
-      {
-        name: '眼周状态',
-        icon: '👁️',
-        score: 65 + Math.floor(Math.random() * 25),
-        description: '眼袋、黑眼圈、细纹'
-      },
-      {
-        name: '法令纹',
-        icon: '👃',
-        score: 60 + Math.floor(Math.random() * 30),
-        description: '鼻唇沟深度和明显程度'
-      }
-    ],
-    
-    suggestions: [
-      {
-        icon: '☀️',
-        title: '防晒是关键',
-        content: '紫外线是皮肤衰老的首要原因，日常务必做好防晒，SPF30+以上。'
-      },
-      {
-        icon: '🧴',
-        title: '抗氧化护肤',
-        content: '使用含维C、维E、虾青素等抗氧化成分的护肤品，对抗自由基。'
-      },
-      {
-        icon: '💤',
-        title: '充足睡眠',
-        content: '睡眠不足会加速皮肤衰老，保证每天7-8小时优质睡眠。'
-      },
-      {
-        icon: '🥤',
-        title: '补充水分',
-        content: '每天饮水2000ml以上，保持皮肤水润有弹性。'
-      }
-    ]
+    success: true,
+    reportId: `face_mock_${Date.now()}`,
+    report: {
+      overall_score: overallScore,
+      predicted_age: predictedAge,
+      dimensions: dimensions,
+      summary: `AI分析显示您的面部年龄约为${predictedAge}岁，整体皮肤状态${overallScore > 75 ? '良好' : '一般'}。`,
+      suggestions: [
+        '建议加强防晒，减少紫外线伤害',
+        '保持充足睡眠，有助于皮肤修复',
+        '适当补充胶原蛋白和维生素C'
+      ]
+    }
   }
 }
